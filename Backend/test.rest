@@ -1,0 +1,11 @@
+POST http://localhost:3000/get-notification
+
+125|123
+
+POST http://localhost:3000/send-notification
+
+1|132.14875|132.25315
+
+POST http://localhost:3000/send-notification
+
+2|131.14875|131.25315

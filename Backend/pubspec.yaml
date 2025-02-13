@@ -1,0 +1,10 @@
+name: emsapp_backend
+description: >-
+  Sends notifications to drivers to look out for EMS vehicles
+version: 0.0.1
+homepage: https://somewhere.com
+environment:
+  sdk: '^3.5.0'
+
+dependencies:
+  mysql1: 0.20.0
