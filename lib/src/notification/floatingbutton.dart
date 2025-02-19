@@ -4,36 +4,43 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
-class MessangerChatHead extends StatefulWidget {
-  const MessangerChatHead({Key? key}) : super(key: key);
+class FloatingButton extends StatefulWidget {
+  const FloatingButton({super.key});
 
   @override
-  State<MessangerChatHead> createState() => _MessangerChatHeadState();
+  State<FloatingButton> createState() => FloatingButtonState();
 }
 
-class _MessangerChatHeadState extends State<MessangerChatHead> {
+class FloatingButtonState extends State<FloatingButton> {
   Color color = const Color(0xFFFFFFFF);
+
+  // displays the notification
   BoxShape _currentShape = BoxShape.circle;
+
   static const String _kPortNameOverlay = 'OVERLAY';
   static const String _kPortNameHome = 'UI';
   final _receivePort = ReceivePort();
+
   SendPort? homePort;
-  String? messageFromOverlay;
+  int? emsNearby = 0;
 
   @override
   void initState() {
     super.initState();
     if (homePort != null) return;
+
     final res = IsolateNameServer.registerPortWithName(
       _receivePort.sendPort,
       _kPortNameOverlay,
     );
+    
     log("$res : HOME");
-    _receivePort.listen((message) {
-      log("message from UI: $message");
+    _receivePort.listen((count) {
       setState(() {
-        messageFromOverlay = 'message from UI: $message';
+        emsNearby = int.tryParse(count) ?? 0;
       });
     });
   }
@@ -83,16 +90,16 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
                             homePort ??= IsolateNameServer.lookupPortByName(
                               _kPortNameHome,
                             );
-                            homePort?.send('Date: ${DateTime.now()}');
+                            homePort?.send('Silence: ${DateTime.now()}');
                           },
                           child: const Text("Send message to UI"),
                         ),
                       )
                     : const SizedBox.shrink(),
                 _currentShape == BoxShape.rectangle
-                    ? messageFromOverlay == null
+                    ? (emsNearby ?? 0) == 0
                         ? const FlutterLogo()
-                        : Text(messageFromOverlay ?? '')
+                        : Text(AppLocalizations.of(context)!.emsNotify)
                     : const FlutterLogo()
               ],
             ),

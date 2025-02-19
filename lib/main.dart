@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'src/app.dart';
 import 'src/settings/settings_controller.dart';
 import 'src/settings/settings_service.dart';
-import 'messenger.dart';
+import 'src/notification/floatingbutton.dart';
 void main() async {
   // Set up the SettingsController, which will glue user settings to multiple
   // Flutter Widgets.
@@ -22,7 +24,16 @@ void main() async {
 @pragma("vm:entry-point")
 void overlayMain() {
   runApp(const MaterialApp(
+    localizationsDelegates: [
+      AppLocalizations.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: [
+      Locale('en', ''), // English, no country code
+    ],
     debugShowCheckedModeBanner: false,
-    home: MessangerChatHead ()
+    home: FloatingButton ()
   ));
 }

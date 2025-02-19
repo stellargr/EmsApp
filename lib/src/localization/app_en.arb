@@ -2,5 +2,9 @@
   "appTitle": "emsmapapp",
   "@appTitle": {
     "description": "The title of the application"
+  },
+  "emsNotify": "There is an emergency vehicle near you",
+  "@emsNotify": {
+    "description": "Message to display to the user when EMS is near"
   }
 }
