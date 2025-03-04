@@ -1,4 +1,3 @@
-import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -20,25 +19,19 @@ class SettingsView extends StatefulWidget {
 
 class SettingsState extends State<SettingsView> {
   static const routeName = '/settings';
-
-  static const String _kPortNameOverlay = 'OVERLAY';
-  static const String _kPortNameHome = 'UI';
-  final _receivePort = ReceivePort();
-
-  SendPort? homePort;
-  bool isPermissionGranted = false;
-
+  
   @override
   void initState() {
     super.initState();
     
     checkPermissionState();
 
-    if (homePort != null) return;
-    final res = IsolateNameServer.registerPortWithName(
-        _receivePort.sendPort, _kPortNameHome);
+    if (widget.controller.homePort != null) return;
+    
+    IsolateNameServer.registerPortWithName(
+        widget.controller.receivePort.sendPort, SettingsController.kPortNameHome);
 
-    _receivePort.listen((message) {
+    widget.controller.receivePort.listen((message) {
       /// TODO: Add notification silencing
     });
   }
@@ -46,7 +39,7 @@ class SettingsState extends State<SettingsView> {
   void checkPermissionState() async {
     final status = await FlutterOverlayWindow.isPermissionGranted();
     setState(() {
-      isPermissionGranted = status;
+      widget.controller.isPermissionGranted = status;
     });
   }
 
@@ -85,7 +78,7 @@ class SettingsState extends State<SettingsView> {
               )
             ],
           ),
-          isPermissionGranted ? TextButton(
+          widget.controller.isPermissionGranted ? TextButton(
             child: const Text('Show Overlay'),
             onPressed: () async {
               if (await FlutterOverlayWindow.isActive()) return;
@@ -105,14 +98,14 @@ class SettingsState extends State<SettingsView> {
             onPressed: () async {
               final bool? result = await FlutterOverlayWindow.requestPermission();
               setState(() {
-                isPermissionGranted = result!;
+                widget.controller.isPermissionGranted = result!;
               });
             }
           ),
-          isPermissionGranted ? TextButton(
+          widget.controller.isPermissionGranted ? TextButton(
             onPressed: () async {
-              homePort ??= IsolateNameServer.lookupPortByName(_kPortNameOverlay);
-              homePort?.send('3');
+              widget.controller.homePort ??= IsolateNameServer.lookupPortByName(SettingsController.kPortNameOverlay);
+              widget.controller.homePort?.send('3');
               await FlutterOverlayWindow.moveOverlay(const OverlayPosition(0, -259));
             },
             child: const Text('Send Notification to Frontend')) : const SizedBox()
