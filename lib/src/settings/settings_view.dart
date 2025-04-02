@@ -24,7 +24,7 @@ class SettingsState extends State<SettingsView> {
     super.initState();
     
     checkPermissionState();
-
+    
     if (widget.controller.homePort != null) return;
     
     IsolateNameServer.registerPortWithName(
@@ -77,21 +77,30 @@ class SettingsState extends State<SettingsView> {
               )
             ],
           ),
-          widget.controller.isPermissionGranted ? TextButton(
-            child: const Text('Show Overlay'),
-            onPressed: () async {
-              if (await FlutterOverlayWindow.isActive()) return;
+          widget.controller.isPermissionGranted ? Row(
+            children: [
+              TextButton(
+                child: const Text('Show Overlay'),
+                onPressed: () async {
+                  if (await FlutterOverlayWindow.isActive()) return;
 
-              await FlutterOverlayWindow.showOverlay(
-                overlayTitle: "emsapp",
-                overlayContent: "overlayEnabled",
-                flag: OverlayFlag.defaultFlag,
-                visibility: NotificationVisibility.visibilityPublic,
-                positionGravity: PositionGravity.auto,
-                height: height,
-                width: WindowSize.matchParent,
-                startPosition: const OverlayPosition(0, -259));
-            }
+                  await FlutterOverlayWindow.showOverlay(
+                    overlayTitle: "emsapp",
+                    overlayContent: "overlayEnabled",
+                    flag: OverlayFlag.defaultFlag,
+                    visibility: NotificationVisibility.visibilityPublic,
+                    positionGravity: PositionGravity.auto,
+                    height: height,
+                    width: WindowSize.matchParent,
+                    startPosition: const OverlayPosition(0, -259));
+                }
+              ),
+              TextButton(
+                child: const Text('Start Location Service'),
+                onPressed: () {
+                }
+              )
+            ]
           ) : TextButton(
             child: const Text('Request Permission'),
             onPressed: () async {

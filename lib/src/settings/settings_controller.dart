@@ -1,8 +1,7 @@
 import 'dart:isolate';
 import 'dart:ui';
 import 'package:http/http.dart' as http;
-
-import 'package:background_location/background_location.dart';
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart' as bg;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -41,19 +40,14 @@ class SettingsController with ChangeNotifier {
 
     WidgetsFlutterBinding.ensureInitialized();
     
-    BackgroundLocation.setAndroidConfiguration(1000);
-
-    BackgroundLocation.stopLocationService(); // stop to ensure it's not already started
-    BackgroundLocation.startLocationService();
-
-    BackgroundLocation.getLocationUpdates((location) async {
+    bg.BackgroundGeolocation.onLocation((location) async {
       // Send a message to the backend with location.latitude and location.longitude
       var response = await http.post(
         Uri.parse('http://localhost:3000/get-notification'),
         headers: <String, String> {
           'Content-type': 'text/plain'
         },
-        body: "${location.latitude}|${location.longitude}"
+        body: "${location.coords.latitude}|${location.coords.longitude}"
       );
 
       int count = int.parse(response.body);
@@ -61,15 +55,27 @@ class SettingsController with ChangeNotifier {
       // Send notification if needed
       if(count > 0 && homePort != null) {
         homePort!.send(count.toString());
-        
-        BackgroundLocation.setAndroidNotification(
-          title: "EMS APP",
-          message: "You have a nearby EMS vehicle",
-          icon: "@mipmap/ic_launcher"
-        );
+
+        /// TODO: Send a toast notification
       }
     });
 
+    bg.State state = await bg.BackgroundGeolocation.ready(bg.Config(
+        desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
+        distanceFilter: 10.0,
+        stopOnTerminate: false,
+        startOnBoot: true,
+        debug: true,
+        logLevel: bg.Config.LOG_LEVEL_VERBOSE
+    ));
+
+    if (!state.enabled) {
+      ////
+      // 3.  Start the plugin.
+      //
+      bg.BackgroundGeolocation.start();
+    }
+    
     // Important! Inform listeners a change has occurred.
     notifyListeners();
   }
